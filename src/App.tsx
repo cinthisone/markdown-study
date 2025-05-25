@@ -3,6 +3,7 @@ import Sidebar from "./components/Sidebar";
 import MarkdownViewer from "./components/MarkdownViewer";
 import ZipUploader from "./components/ZipUploader";
 import DarkModeToggle from "./components/DarkModeToggle";
+import NotesModal from "./components/NotesModal";
 import { useHashRoute } from "./hooks/useHashRoute";
 import { flattenTree } from "./utils/treeUtils";
 import type { FileEntry } from "./types";
@@ -20,6 +21,7 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : 18;
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
   const currentFile = useHashRoute();
 
   useEffect(() => {
@@ -117,7 +119,11 @@ const App: React.FC = () => {
         id="mobile-sidebar"
         className={`fixed inset-y-0 left-0 z-40 w-full bg-white dark:bg-gray-900 shadow-lg transform transition-transform duration-200 md:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <Sidebar tree={tree} onClear={() => { setSidebarOpen(false); handleClear(); }} />
+        <Sidebar 
+          tree={tree} 
+          onClear={() => { setSidebarOpen(false); handleClear(); }} 
+          onFileSelect={() => setSidebarOpen(false)}
+        />
       </div>
       {/* Overlay for mobile when sidebar is open */}
       {sidebarOpen && (
@@ -152,6 +158,16 @@ const App: React.FC = () => {
                 A+
               </button>
             </div>
+            <button
+              onClick={() => setIsNotesOpen(true)}
+              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
+              title="Open Notes"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span className="hidden md:inline">Notes</span>
+            </button>
             <DarkModeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode(!isDarkMode)} />
           </div>
         </div>
@@ -167,6 +183,7 @@ const App: React.FC = () => {
           )}
         </div>
       </main>
+      <NotesModal isOpen={isNotesOpen} onClose={() => setIsNotesOpen(false)} />
     </div>
   );
 };
