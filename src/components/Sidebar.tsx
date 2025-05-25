@@ -23,7 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({ tree, onClear }) => {
       <div
         key={currentPath}
         onClick={() => {
-          window.location.hash = currentPath;
+          window.location.hash = encodeURIComponent(currentPath);
         }}
         className="pl-4 py-1 cursor-pointer hover:bg-gray-800 rounded"
       >

@@ -15,6 +15,10 @@ const App: React.FC = () => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
+  const [fontSize, setFontSize] = useState(() => {
+    const saved = localStorage.getItem('fontSize');
+    return saved ? JSON.parse(saved) : 18;
+  });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const currentFile = useHashRoute();
 
@@ -22,6 +26,10 @@ const App: React.FC = () => {
     document.documentElement.classList.toggle('dark', isDarkMode);
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
   }, [isDarkMode]);
+
+  useEffect(() => {
+    localStorage.setItem('fontSize', JSON.stringify(fontSize));
+  }, [fontSize]);
 
   useEffect(() => {
     const loadSupabaseFiles = async () => {
@@ -117,7 +125,7 @@ const App: React.FC = () => {
         <div className="fixed inset-0 z-30 bg-black bg-opacity-30 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
       <main className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-20">
           {/* Hamburger menu for mobile */}
           <button
             className="md:hidden p-2 mr-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800"
@@ -129,13 +137,30 @@ const App: React.FC = () => {
             </svg>
           </button>
           <h1 className="text-xl font-semibold flex-1">Markdown Viewer</h1>
-          <DarkModeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode(!isDarkMode)} />
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setFontSize((f: number) => Math.max(12, f - 2))} 
+                className="px-2 py-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                A-
+              </button>
+              <span className="text-sm w-12 text-center">{fontSize}px</span>
+              <button 
+                onClick={() => setFontSize((f: number) => Math.min(48, f + 2))} 
+                className="px-2 py-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                A+
+              </button>
+            </div>
+            <DarkModeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode(!isDarkMode)} />
+          </div>
         </div>
         <div className="flex-1 overflow-auto p-4">
           {!tree ? (
             <ZipUploader onZipLoad={handleZipLoad} />
           ) : currentFile && flattenedFiles[currentFile] ? (
-            <MarkdownViewer file={flattenedFiles[currentFile]} />
+            <MarkdownViewer file={flattenedFiles[currentFile]} fontSize={fontSize} />
           ) : (
             <div className="text-center text-gray-500 dark:text-gray-400">
               Select a markdown file from the sidebar

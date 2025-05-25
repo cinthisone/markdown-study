@@ -22,13 +22,20 @@ const ZipUploader: React.FC<ZipUploaderProps> = ({ onZipLoad }) => {
           if (zipEntry.dir) continue;
           if (!path.endsWith('.md')) continue;
           
+          console.log('Processing file:', path);
           const content = await zipEntry.async('text');
+          // Decode the path to handle spaces and special characters
+          const decodedPath = decodeURIComponent(path);
+          console.log('Decoded path:', decodedPath);
+          console.log('Content length:', content.length);
+          
           files.push({
-            name: path,
+            name: decodedPath,
             content
           });
         }
         
+        console.log('All files:', files);
         onZipLoad(files);
       } catch (error) {
         console.error('Error processing zip file:', error);
