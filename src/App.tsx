@@ -28,9 +28,13 @@ const App: React.FC = () => {
   const currentFile = useHashRoute();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      console.log('Auth user on mount:', user);
+    });
     const { data: listener } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
       setUser(session?.user ?? null);
+      console.log('Auth state change:', session?.user);
     });
     return () => listener?.subscription.unsubscribe();
   }, []);
@@ -45,17 +49,23 @@ const App: React.FC = () => {
   }, [fontSize]);
 
   useEffect(() => {
+    if (!user) return;
     const loadSupabaseFiles = async () => {
+      console.log('Loading files for user:', user.id);
       const data = await loadFiles();
+      console.log('Loaded files:', data);
       if (data && data.length > 0) {
         const files = data.map(({ name, content }) => ({ name, content }));
         const tree = buildTree(files);
         setTree(tree);
         setFlattenedFiles(flattenTree(tree));
+      } else {
+        setTree(null);
+        setFlattenedFiles({});
       }
     };
     loadSupabaseFiles();
-  }, []);
+  }, [user]);
 
   const buildTree = (files: { name: string; content: string }[]): FileEntry[] => {
     const tree: FileEntry[] = [];
@@ -182,6 +192,19 @@ const App: React.FC = () => {
               <span className="hidden md:inline">Notes</span>
             </button>
             <DarkModeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode(!isDarkMode)} />
+            {user && (
+              <div className="flex items-center gap-2 ml-4">
+                <span className="text-sm text-gray-400">{user.email}</span>
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                  }}
+                  className="px-2 py-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex-1 overflow-auto p-4">

@@ -20,7 +20,11 @@ export async function saveFiles(files: { name: string; content: string }[]): Pro
   await supabase.from('files').delete().eq('user_id', user.id);
   // Insert new files with user_id
   const filesWithUser = files.map(file => ({ ...file, user_id: user.id }));
-  await supabase.from('files').insert(filesWithUser);
+  const { error } = await supabase.from('files').insert(filesWithUser);
+  if (error) {
+    console.error('Error inserting files:', error);
+    alert('Error saving files: ' + error.message);
+  }
 }
 
 export async function loadFiles(): Promise<SupabaseFile[]> {
