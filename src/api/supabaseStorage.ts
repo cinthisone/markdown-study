@@ -10,21 +10,33 @@ export interface SupabaseFile {
   name: string;
   content: string;
   uploaded_at?: string;
+  user_id?: string;
 }
 
 export async function saveFiles(files: { name: string; content: string }[]): Promise<void> {
-  // Remove all previous files (optional, or you can just insert new ones)
-  await supabase.from('files').delete().neq('id', '');
-  // Insert new files
-  await supabase.from('files').insert(files);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+  // Remove all previous files for this user
+  await supabase.from('files').delete().eq('user_id', user.id);
+  // Insert new files with user_id
+  const filesWithUser = files.map(file => ({ ...file, user_id: user.id }));
+  await supabase.from('files').insert(filesWithUser);
 }
 
 export async function loadFiles(): Promise<SupabaseFile[]> {
-  const { data, error } = await supabase.from('files').select('*').order('uploaded_at', { ascending: true });
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+  const { data, error } = await supabase
+    .from('files')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('uploaded_at', { ascending: true });
   if (error) throw error;
   return data || [];
 }
 
 export async function clearFiles(): Promise<void> {
-  await supabase.from('files').delete().neq('id', '');
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+  await supabase.from('files').delete().eq('user_id', user.id);
 } 
