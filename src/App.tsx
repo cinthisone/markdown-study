@@ -109,14 +109,13 @@ const App: React.FC = () => {
   return (
     <div className="flex h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       {/* Sidebar for desktop */}
-      <div className="hidden md:block h-full">
+      <div className="hidden md:block h-full w-96">
         <Sidebar tree={tree} onClear={handleClear} />
       </div>
       {/* Sidebar for mobile (sliding drawer) */}
       <div
         id="mobile-sidebar"
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-900 shadow-lg transform transition-transform duration-200 md:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
-        style={{ maxWidth: '80vw' }}
+        className={`fixed inset-y-0 left-0 z-40 w-full bg-white dark:bg-gray-900 shadow-lg transform transition-transform duration-200 md:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <Sidebar tree={tree} onClear={() => { setSidebarOpen(false); handleClear(); }} />
       </div>

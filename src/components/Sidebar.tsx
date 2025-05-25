@@ -33,7 +33,7 @@ const Sidebar: React.FC<SidebarProps> = ({ tree, onClear }) => {
   };
 
   return (
-    <div className="w-64 bg-gray-900 border-r border-gray-800 p-4 overflow-y-auto">
+    <div className="w-96 bg-gray-900 border-r border-gray-800 p-4 overflow-y-auto">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Files</h2>
         {tree && (
