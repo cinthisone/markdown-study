@@ -7,7 +7,9 @@ import NotesModal from "./components/NotesModal";
 import { useHashRoute } from "./hooks/useHashRoute";
 import { flattenTree } from "./utils/treeUtils";
 import type { FileEntry } from "./types";
-import { saveFiles, loadFiles, clearFiles } from "./api/supabaseStorage";
+import { saveFiles, loadFiles, clearFiles, supabase } from "./api/supabaseStorage";
+import AuthPage from './Auth';
+import type { User, Session } from '@supabase/supabase-js';
 
 const App: React.FC = () => {
   const [tree, setTree] = useState<FileEntry[] | null>(null);
@@ -22,7 +24,16 @@ const App: React.FC = () => {
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const currentFile = useHashRoute();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
+      setUser(session?.user ?? null);
+    });
+    return () => listener?.subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
@@ -107,6 +118,8 @@ const App: React.FC = () => {
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [sidebarOpen]);
+
+  if (!user) return <AuthPage />;
 
   return (
     <div className="flex h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
