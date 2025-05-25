@@ -26,6 +26,7 @@ const App: React.FC = () => {
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const currentFile = useHashRoute();
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -129,6 +130,19 @@ const App: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [sidebarOpen]);
 
+  // Close user menu on outside click (mobile)
+  useEffect(() => {
+    if (!showUserMenu) return;
+    const handleClick = (e: MouseEvent) => {
+      const menu = document.getElementById('user-menu-dropdown');
+      if (menu && !menu.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showUserMenu]);
+
   if (!user) return <AuthPage />;
 
   return (
@@ -193,17 +207,48 @@ const App: React.FC = () => {
             </button>
             <DarkModeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode(!isDarkMode)} />
             {user && (
-              <div className="flex items-center gap-2 ml-4">
-                <span className="text-sm text-gray-400">{user.email}</span>
-                <button
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                  }}
-                  className="px-2 py-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-800"
-                >
-                  Logout
-                </button>
-              </div>
+              <>
+                {/* Desktop: show email and logout */}
+                <div className="hidden md:flex items-center gap-2 ml-4">
+                  <span className="text-sm text-gray-400">{user.email}</span>
+                  <button
+                    onClick={async () => {
+                      await supabase.auth.signOut();
+                    }}
+                    className="px-2 py-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    Logout
+                  </button>
+                </div>
+                {/* Mobile: show avatar with dropdown */}
+                <div className="relative md:hidden ml-2">
+                  <button
+                    onClick={() => setShowUserMenu((v: boolean) => !v)}
+                    className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    aria-label="User menu"
+                  >
+                    {user.email
+                      ? user.email.split("@")[0].split(".").map(s => s[0]?.toUpperCase()).join("")
+                      : "U"}
+                  </button>
+                  {showUserMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded shadow-lg z-50 py-2 border border-gray-200 dark:border-gray-700">
+                      <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-gray-700">
+                        {user.email}
+                      </div>
+                      <button
+                        onClick={async () => {
+                          setShowUserMenu(false);
+                          await supabase.auth.signOut();
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>
