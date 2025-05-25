@@ -18,8 +18,12 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           markdown: ['react-markdown', 'remark-gfm', 'rehype-katex', 'remark-math', 'rehype-highlight'],
+          editor: ['@tinymce/tinymce-react'],
         },
       },
     },
   },
+  optimizeDeps: {
+    include: ['@tinymce/tinymce-react']
+  }
 })
