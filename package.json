@@ -12,6 +12,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.49.8",
     "@tailwindcss/typography": "^0.5.10",
+    "@tinymce/tinymce-react": "^6.1.0",
     "@types/jszip": "^3.4.1",
     "@vercel/kv": "^1.0.1",
     "highlight.js": "^11.9.0",
