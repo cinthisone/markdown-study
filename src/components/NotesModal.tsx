@@ -79,29 +79,35 @@ const NotesModal: React.FC<NotesModalProps> = ({ isOpen, onClose }) => {
           {notes.map(note => (
             <div
               key={note.id}
-              className={`flex items-center px-4 py-2 border-b-2 ${
+              onClick={() => setActiveTab(note.id)}
+              className={`flex items-center px-4 py-2 border-b-2 cursor-pointer ${
                 activeTab === note.id
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                   : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
-              <input
-                type="text"
-                value={note.title}
-                onChange={(e) => updateNoteTitle(note.id, e.target.value)}
-                className="bg-transparent border-none focus:outline-none focus:ring-0 w-24"
-                onClick={(e) => e.stopPropagation()}
-              />
-              {notes.length > 1 && (
-                <button
-                  onClick={() => deleteNote(note.id)}
-                  className="ml-2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={note.title}
+                  onChange={(e) => updateNoteTitle(note.id, e.target.value)}
+                  className="bg-transparent border-none focus:outline-none focus:ring-0 w-24"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                {notes.length > 1 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteNote(note.id);
+                    }}
+                    className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
           ))}
           <button
