@@ -149,7 +149,7 @@ const App: React.FC = () => {
     <div className="flex h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       {/* Sidebar for desktop */}
       <div className="hidden md:block h-full w-96">
-        <Sidebar tree={tree} onClear={handleClear} />
+        <Sidebar tree={tree} onClear={handleClear} currentFilePath={currentFile} />
       </div>
       {/* Sidebar for mobile (sliding drawer) */}
       <div
@@ -160,6 +160,7 @@ const App: React.FC = () => {
           tree={tree} 
           onClear={() => { setSidebarOpen(false); handleClear(); }} 
           onFileSelect={() => setSidebarOpen(false)}
+          currentFilePath={currentFile}
         />
       </div>
       {/* Overlay for mobile when sidebar is open */}

@@ -5,11 +5,12 @@ interface SidebarProps {
   tree: FileEntry[] | null;
   onClear: () => void;
   onFileSelect?: () => void;
+  currentFilePath?: string;
 }
 
 const CHECKED_KEY = 'sidebar-checked-files';
 
-const Sidebar: React.FC<SidebarProps> = ({ tree, onClear, onFileSelect }) => {
+const Sidebar: React.FC<SidebarProps> = ({ tree, onClear, onFileSelect, currentFilePath }) => {
   const [collapsedFolders, setCollapsedFolders] = useState<Set<string>>(new Set());
   const [checkedFiles, setCheckedFiles] = useState<Set<string>>(() => {
     const saved = localStorage.getItem(CHECKED_KEY);
@@ -118,7 +119,7 @@ const Sidebar: React.FC<SidebarProps> = ({ tree, onClear, onFileSelect }) => {
             window.location.hash = encodeURIComponent(currentPath);
             onFileSelect?.();
           }}
-          className="py-1 cursor-pointer hover:bg-gray-800 rounded flex-1 select-none"
+          className={`py-1 cursor-pointer rounded flex-1 select-none ${currentFilePath === currentPath ? 'bg-blue-600 text-white dark:bg-blue-500' : 'hover:bg-gray-800'}`}
         >
           {formatFileName(file.name)}
         </div>
