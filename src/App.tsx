@@ -12,6 +12,50 @@ import { saveFiles, loadFiles, clearFiles, supabase } from "./api/supabaseStorag
 import AuthPage from './Auth';
 import type { User, Session } from '@supabase/supabase-js';
 
+const HelpModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
+      <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-lg w-full p-6 z-10">
+        <h2 className="text-xl font-bold mb-4">Help: How to Zip and Upload Your Notes</h2>
+        <div className="mb-4 text-sm text-gray-800 dark:text-gray-200 space-y-2">
+          <p>
+            To quickly upload your notes to the Markdown Viewer, you can use a PowerShell script to zip your <code>C:\learn</code> folder and place the zip file in your Downloads folder. You can even assign a keyboard shortcut to run this script!
+          </p>
+          <p>Here is an example PowerShell script:</p>
+          <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs overflow-x-auto"><code>{`
+# Define source and destination
+$source = "C:\\learn"
+$destination = "$([Environment]::GetFolderPath('UserProfile'))\\Downloads\\mynotes.zip"
+$winrar = "C:\\Program Files\\WinRAR\\WinRAR.exe"  # Adjust if needed
+
+# Remove existing zip if it exists
+if (Test-Path $destination) {
+    Remove-Item $destination
+}
+
+# Change directory and run WinRAR from inside the source folder
+Push-Location $source
+& "$winrar" a -afzip -r "$destination" * 
+Pop-Location
+`}</code></pre>
+          <p>
+            <b>Instructions:</b>
+            <ul className="list-disc ml-6">
+              <li>Install <b>WinRAR</b> if you don&apos;t have it.</li>
+              <li>Save the script as <code>zip-notes.ps1</code>.</li>
+              <li>Assign a keyboard shortcut to run the script (optional, via Windows Task Scheduler or a hotkey tool).</li>
+              <li>After running, upload <code>mynotes.zip</code> from your Downloads folder into the Markdown Viewer.</li>
+            </ul>
+          </p>
+        </div>
+        <button onClick={onClose} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Close</button>
+      </div>
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   const [tree, setTree] = useState<FileEntry[] | null>(null);
   const [flattenedFiles, setFlattenedFiles] = useState<Record<string, FileEntry>>({});
@@ -28,6 +72,7 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const currentFile = useHashRoute();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -270,6 +315,20 @@ const App: React.FC = () => {
                       >
                         Logout
                       </button>
+                      {/* Mobile: show Help in dropdown */}
+                      <button
+                        onClick={() => {
+                          setIsHelpOpen(true);
+                          setShowUserMenu(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        title="Help"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 14h.01M16 10h.01M12 18h.01M12 6h.01" />
+                        </svg>
+                        Help
+                      </button>
                     </div>
                   )}
                 </div>
@@ -290,6 +349,7 @@ const App: React.FC = () => {
         </div>
       </main>
       <NotesModal isOpen={isNotesOpen} onClose={() => setIsNotesOpen(false)} />
+      <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </div>
   );
 };
