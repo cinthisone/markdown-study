@@ -153,7 +153,6 @@ export const TodoList = () => {
     return savedTodos ? JSON.parse(savedTodos) : [];
   });
   const [newTodo, setNewTodo] = useState('');
-  const [dndError, setDndError] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -225,11 +224,6 @@ export const TodoList = () => {
           >
             <DraggableModal>
               <div className="p-4 bg-white dark:bg-gray-800">
-                {dndError && (
-                  <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
-                    {dndError}
-                  </div>
-                )}
                 <form onSubmit={handleAddTodo} className="mb-4">
                   <div className="flex gap-2">
                     <input
