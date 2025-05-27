@@ -206,7 +206,8 @@ export const TodoList = () => {
   };
 
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-block border border-red-500">
+      <div className="absolute -top-8 left-0 bg-red-500 text-white px-2 py-1 text-xs">TodoList Component</div>
       <button
         onClick={() => {
           console.log('TodoList button clicked, current isOpen:', isOpen);
