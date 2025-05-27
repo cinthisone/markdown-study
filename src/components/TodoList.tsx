@@ -206,10 +206,14 @@ export const TodoList = () => {
   };
 
   return (
-    <>
+    <div className="relative inline-block">
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg transition-all z-50 relative"
+        onClick={() => {
+          console.log('TodoList button clicked, current isOpen:', isOpen);
+          setIsOpen(!isOpen);
+        }}
+        className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg transition-all z-50 relative inline-flex items-center justify-center"
+        style={{ minWidth: '44px', minHeight: '44px' }}
         aria-label="Toggle Todo List"
       >
         <FaList className="w-5 h-5" />
@@ -262,7 +266,7 @@ export const TodoList = () => {
           </DndContext>
         </ErrorBoundary>
       )}
-    </>
+    </div>
   );
 };
 
