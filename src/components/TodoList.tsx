@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaList, FaTimes } from 'react-icons/fa';
 import {
   DndContext,
@@ -149,18 +149,29 @@ export const TodoList = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [todos, setTodos] = useState<Todo[]>(() => {
     const savedTodos = localStorage.getItem('todos');
+    console.log('Loading todos from localStorage:', savedTodos);
     return savedTodos ? JSON.parse(savedTodos) : [];
   });
   const [newTodo, setNewTodo] = useState('');
+  const [dndError, setDndError] = useState<string | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
   useEffect(() => {
+    console.log('DndContext sensors initialized:', sensors);
+  }, [sensors]);
+
+  useEffect(() => {
+    console.log('Current todos:', todos);
     localStorage.setItem('todos', JSON.stringify(todos));
   }, [todos]);
 
@@ -199,57 +210,90 @@ export const TodoList = () => {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg transition-all"
+        className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg transition-all z-50 relative"
         aria-label="Toggle Todo List"
       >
         <FaList className="w-5 h-5" />
       </button>
 
       {isOpen && (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <DraggableModal>
-            <div className="p-4">
-              <form onSubmit={handleAddTodo} className="mb-4">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newTodo}
-                    onChange={(e) => setNewTodo(e.target.value)}
-                    placeholder="Add new todo..."
-                    className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
-                  />
-                  <button
-                    type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
-                  >
-                    Add
-                  </button>
-                </div>
-              </form>
-
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                <SortableContext
-                  items={todos.map(todo => todo.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {todos.map(todo => (
-                    <SortableTodo
-                      key={todo.id}
-                      todo={todo}
-                      onToggle={toggleTodo}
-                      onDelete={deleteTodo}
+        <ErrorBoundary fallback={<div>Error loading drag and drop functionality</div>}>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <DraggableModal>
+              <div className="p-4 bg-white dark:bg-gray-800">
+                {dndError && (
+                  <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
+                    {dndError}
+                  </div>
+                )}
+                <form onSubmit={handleAddTodo} className="mb-4">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newTodo}
+                      onChange={(e) => setNewTodo(e.target.value)}
+                      placeholder="Add new todo..."
+                      className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                     />
-                  ))}
-                </SortableContext>
+                    <button
+                      type="submit"
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </form>
+
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  <SortableContext
+                    items={todos.map(todo => todo.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {todos.map(todo => (
+                      <SortableTodo
+                        key={todo.id}
+                        todo={todo}
+                        onToggle={toggleTodo}
+                        onDelete={deleteTodo}
+                      />
+                    ))}
+                  </SortableContext>
+                </div>
               </div>
-            </div>
-          </DraggableModal>
-        </DndContext>
+            </DraggableModal>
+          </DndContext>
+        </ErrorBoundary>
       )}
     </>
   );
-}; 
+};
+
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode; fallback: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error in TodoList:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+
+    return this.props.children;
+  }
+} 
