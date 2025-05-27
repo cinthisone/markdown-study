@@ -4,6 +4,7 @@ import MarkdownViewer from "./components/MarkdownViewer";
 import ZipUploader from "./components/ZipUploader";
 import DarkModeToggle from "./components/DarkModeToggle";
 import NotesModal from "./components/NotesModal";
+import { TodoList } from "./components/TodoList";
 import { useHashRoute } from "./hooks/useHashRoute";
 import { flattenTree } from "./utils/treeUtils";
 import type { FileEntry } from "./types";
@@ -195,6 +196,10 @@ const App: React.FC = () => {
               >
                 A+
               </button>
+            </div>
+            <div className="relative z-50">
+              <div style={{background:'red',color:'white',padding:'4px',borderRadius:'4px'}}>APP TEST DIV</div>
+              <TodoList />
             </div>
             <button
               onClick={() => setIsNotesOpen(true)}
