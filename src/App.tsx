@@ -198,7 +198,6 @@ const App: React.FC = () => {
               </button>
             </div>
             <div className="relative z-50">
-              <div style={{background:'red',color:'white',padding:'4px',borderRadius:'4px'}}>APP TEST DIV</div>
               <TodoList />
             </div>
             <button
