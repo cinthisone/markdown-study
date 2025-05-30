@@ -35,6 +35,10 @@ npx gh-pages -d dist
 
 Set `base` in `vite.config.ts` if deploying to a subpath.
 
+## Screenshot
+
+![Markdown Viewer Screenshot](screenshots/markdown-viewer-screenshot.png)
+
 ## Demo
 
 ![Demo GIF](demo.gif)
